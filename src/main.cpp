@@ -9,10 +9,19 @@
 
 int iP,frP,mrP,brP,flP,mlP,blP,oP,imuP;
 double wD, rpm;
+flP = 3;
+mlP = 5;
+blP = 4;
+frP = 7;
+mrP = 9;
+brP = 10;
+imuP = 11;
+wD = 2.75;
+rpm = 450; 
 // Chassis constructor
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
-    {flP, mlP, blP},     // Left Chassis Ports (negative port will reverse it!)
+    {-flP, -mlP, -blP},     // Left Chassis Ports (negative port will reverse it!)
     {frP, mrP, brP},  // Right Chassis Ports (negative port will reverse it!)
 
     imuP,      // IMU Port
@@ -147,7 +156,13 @@ void opcontrol() {
     // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
     // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
     // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped single arcade
-
+    if (master.get_digital(DIGITAL_R2)) {
+      intake.move(127);
+    } else if (master.get_digital(DIGITAL_R1)) {
+      intake.move(-127);
+    } else {
+      intake.move(0);
+    }
     // . . .
     // Put more user control code here!
     // . . .
