@@ -7,26 +7,26 @@
 
 //int iP,frP,mfP,brP,flP,mlP,blP,oP;
 
-int iP,frP,mrP,brP,flP,mlP,blP,oP,imuP;
-double wD, rpm;
-flP = 3;
-mlP = 5;
-blP = 4;
-frP = 7;
-mrP = 9;
-brP = 10;
-imuP = 11;
-wD = 2.75;
-rpm = 450; 
+// int iP,frP,mrP,brP,flP,mlP,blP,oP,imuP;
+// double wD, rpm;
+// flP = 3;
+// mlP = 5;
+// blP = 4;
+// frP = 7;
+// mrP = 9;
+// brP = 10;
+// imuP = 8;
+// wD = 2.75;
+// rpm = 450; 
 // Chassis constructor
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
-    {-flP, -mlP, -blP},     // Left Chassis Ports (negative port will reverse it!)
-    {frP, mrP, brP},  // Right Chassis Ports (negative port will reverse it!)
+    {-3, -5, -4},     // Left Chassis Ports (negative port will reverse it!)
+    {7, 9, 10},  // Right Chassis Ports (negative port will reverse it!)
 
-    imuP,      // IMU Port
-    wD,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
-    rpm);   // Wheel RPM
+    8,      // IMU Port
+    2.75,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
+    450);   // Wheel RPM
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -125,6 +125,7 @@ void autonomous() {
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
+ bool clampState = false;
 void opcontrol() {
   // This is preference to what you like to drive on
   pros::motor_brake_mode_e_t driver_preference_brake = MOTOR_BRAKE_COAST;
@@ -152,21 +153,24 @@ void opcontrol() {
     }
 
     chassis.opcontrol_tank();  // Tank control
-    // chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
-    // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
-    // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
-    // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped single arcade
+  
     if (master.get_digital(DIGITAL_R2)) {
-      intake.move(127);
-    } else if (master.get_digital(DIGITAL_R1)) {
       intake.move(-127);
+    } else if (master.get_digital(DIGITAL_R1)) {
+      intake.move(127);
     } else {
       intake.move(0);
     }
-    // . . .
-    // Put more user control code here!
-    // . . .
-
+    if (master.get_digital(DIGITAL_L1)) {
+      clampState = !clampState;
+      clamp.set_value(clampState);
+    
+    }
+ 
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
-}
+}  
+// chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
+    // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
+    // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
+    // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped single arcade
