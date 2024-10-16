@@ -21,8 +21,8 @@
 // Chassis constructor
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
-    {-3, -5, -4},     // Left Chassis Ports (negative port will reverse it!)
-    {7, 9, 10},  // Right Chassis Ports (negative port will reverse it!)
+    {-13, -15, -14},     // Left Chassis Ports (negative port will reverse it!)
+    {17, 18, 19},  // Right Chassis Ports (negative port will reverse it!)
 
     8,      // IMU Port
     2.75,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
@@ -125,12 +125,32 @@ void autonomous() {
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
- bool clampState = false;
+
+ /*
+ henry_wo is the function that toggles pistons
+ safwaan_majid is the variable that keeps track of the state of the piston
+ kavinjit_sandhu is the piston that is being toggled
+ parthiv_maddipatla is the variable that keeps track of the state of the piston in the function
+ saketh_nandam is the lady brown mech
+ */
+ bool parthiv_maddipatla = false;
+ bool kavinjit_sandhu = false;
+//  void henry_wo(pros::ADIDigitalOut kavinjit_sandhu, bool parthiv_maddipatla) {
+//   parthiv_maddipatla = !parthiv_maddipatla;
+//   kavinjit_sandhu.set_value(parthiv_maddipatla);
+//  }
+//  bool henry_wo(bool parthiv_maddipatla) {
+//   parthiv_maddipatla = !parthiv_maddipatla;
+//   return parthiv_maddipatla;
+//  }
+
 void opcontrol() {
   // This is preference to what you like to drive on
   pros::motor_brake_mode_e_t driver_preference_brake = MOTOR_BRAKE_COAST;
-
+  pros::motor_brake_mode_e_t lady_brown_brake = MOTOR_BRAKE_HOLD;
   chassis.drive_brake_set(driver_preference_brake);
+  saketh_nandam.set_brake_mode(lady_brown_brake);
+  intake.set_brake_mode(driver_preference_brake);
 
   while (true) {
     // PID Tuner
@@ -158,15 +178,30 @@ void opcontrol() {
       intake.move(-127);
     } else if (master.get_digital(DIGITAL_R1)) {
       intake.move(127);
+    }
+      else if (intake.get_actual_velocity() < 10) {
+      intake.brake();
     } else {
       intake.move(0);
     }
-    if (master.get_digital(DIGITAL_L1)) {
-      clampState = !clampState;
-      clamp.set_value(clampState);
-    
+    if (master.get_digital_new_press(DIGITAL_L1)) {
+      parthiv_maddipatla = !parthiv_maddipatla;
+      clamp_digi.set_value(parthiv_maddipatla);
     }
- 
+    if (master.get_digital_new_press(DIGITAL_A)) {
+      kavinjit_sandhu = !kavinjit_sandhu;
+      henry_wo.set_value(kavinjit_sandhu);
+    }
+
+    if (master.get_digital(DIGITAL_L2)) {
+      saketh_nandam.move(127);
+    } else if (master.get_digital(DIGITAL_R2)) {
+      saketh_nandam.move(-127);
+    } else if (saketh_nandam.get_actual_velocity() < 10) {
+      saketh_nandam.brake();
+    } else {
+      saketh_nandam.brake();
+    }
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
 }  
