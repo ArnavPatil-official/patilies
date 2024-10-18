@@ -143,6 +143,19 @@ void autonomous() {
 //   parthiv_maddipatla = !parthiv_maddipatla;
 //   return parthiv_maddipatla;
 //  }
+ // Constants for interference detection
+// const double PARTHIVS_CURRENT_THRESHOLD = 2.5; // Adjust this value based on testing
+// const double SAKETH_EFFICIENCY_THRESHOLD = 50.0; // Adjust this value based on testing
+// bool intake_running = false;
+// const double intake_torque_threshold = 9.8;
+// void intake_check(void * param) {
+//   while (intake_running) {
+//       if (intake.get_torque() > intake_torque_threshold) {
+//         intake.brake();
+//     }
+//     pros::delay(10);
+//   }
+// }
 
 void opcontrol() {
   // This is preference to what you like to drive on
@@ -174,14 +187,18 @@ void opcontrol() {
 
     chassis.opcontrol_tank();  // Tank control
   
+   
+
     if (master.get_digital(DIGITAL_R2)) {
-      intake.move(-127);
-    } else if (master.get_digital(DIGITAL_R1)) {
+        intake.move(-127);
+      //  intake_running = true;
+      }
+    else if (master.get_digital(DIGITAL_R1)) {
       intake.move(127);
+      //intake_running = true;
     }
-      else if (intake.get_actual_velocity() < 10) {
-      intake.brake();
-    } else {
+    else {
+      //intake_running = false;
       intake.move(0);
     }
     if (master.get_digital_new_press(DIGITAL_L1)) {
@@ -205,6 +222,7 @@ void opcontrol() {
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
 }  
+
 // chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
     // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
     // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
