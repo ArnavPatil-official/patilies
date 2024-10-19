@@ -21,10 +21,10 @@
 // Chassis constructor
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
-    {-13, -15, -14},     // Left Chassis Ports (negative port will reverse it!)
-    {17, 18, 19},  // Right Chassis Ports (negative port will reverse it!)
+    {-3, -6, -7},     // Left Chassis Ports (negative port will reverse it!)
+    {9, 14, 19},  // Right Chassis Ports (negative port will reverse it!)
 
-    8,      // IMU Port
+    1,      // IMU Port
     2.75,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
     450);   // Wheel RPM
 
@@ -34,6 +34,16 @@ ez::Drive chassis(
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
+bool intake_running = false;
+const double intake_torque_threshold = 9.8;
+void intake_check(void * param) {
+  while (intake_running) {
+      if (intake.get_torque() > intake_torque_threshold) {
+        intake.brake();
+    }
+    pros::delay(10);
+  }
+}
 void initialize() {
   // Print our branding over your terminal :D
   ez::ez_template_print();
@@ -47,6 +57,7 @@ void initialize() {
 
   // Set the drive to your own constants from autons.cpp!
   default_constants();
+  //pros::task::create(intake_check, nullptr);
 
   // These are already defaulted to these buttons, but you can change the left/right curve buttons here!
   // chassis.opcontrol_curve_buttons_left_set(pros::E_CONTROLLER_DIGITAL_LEFT, pros::E_CONTROLLER_DIGITAL_RIGHT);  // If using tank, only the left side is used.
@@ -54,14 +65,9 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-      Auton("Example Drive\n\nDrive forward and come back.", drive_example),
-      Auton("Example Turn\n\nTurn 3 times.", turn_example),
-      Auton("Drive and Turn\n\nDrive forward, turn, come back. ", drive_and_turn),
-      Auton("Drive and Turn\n\nSlow down during drive.", wait_until_change_speed),
-      Auton("Swing Example\n\nSwing in an 'S' curve", swing_example),
-      Auton("Motion Chaining\n\nDrive forward, turn, and come back, but blend everything together :D", motion_chaining),
-      Auton("Combine all 3 movements", combining_movements),
-      Auton("Interference\n\nAfter driving forward, robot performs differently if interfered or not.", interfered_example),
+      Auton("skills.", skills),
+      Auton("blue awp.", blue_awp),
+      Auton("red awp. ", red_awp),
   });
 
   // Initialize chassis and auton selector
@@ -162,7 +168,7 @@ void opcontrol() {
   pros::motor_brake_mode_e_t driver_preference_brake = MOTOR_BRAKE_COAST;
   pros::motor_brake_mode_e_t lady_brown_brake = MOTOR_BRAKE_HOLD;
   chassis.drive_brake_set(driver_preference_brake);
-  saketh_nandam.set_brake_mode(lady_brown_brake);
+ // saketh_nandam.set_brake_mode(lady_brown_brake);
   intake.set_brake_mode(driver_preference_brake);
 
   while (true) {
@@ -210,15 +216,15 @@ void opcontrol() {
       henry_wo.set_value(kavinjit_sandhu);
     }
 
-    if (master.get_digital(DIGITAL_L2)) {
-      saketh_nandam.move(127);
-    } else if (master.get_digital(DIGITAL_R2)) {
-      saketh_nandam.move(-127);
-    } else if (saketh_nandam.get_actual_velocity() < 10) {
-      saketh_nandam.brake();
-    } else {
-      saketh_nandam.brake();
-    }
+    // if (master.get_digital(DIGITAL_L2)) {
+    //   saketh_nandam.move(127);
+    // } else if (master.get_digital(DIGITAL_R2)) {
+    //   saketh_nandam.move(-127);
+    // } else {
+    //   saketh_nandam.brake();
+    // }
+    // pros::screen::print(pros::TEXT_LARGE, 3, "CTESPN");
+    // master.print(0, 0, "Don't be saketh nandam");
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
 }  

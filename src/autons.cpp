@@ -33,6 +33,21 @@ void default_constants() {
 ///
 // Drive Example
 ///
+
+
+void skills() {
+
+}
+void blue_awp() {
+
+}
+void red_awp() {
+  
+}
+
+
+
+
 void drive_example() {
   // The first parameter is target inches
   // The second parameter is max speed the robot will drive at
