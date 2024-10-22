@@ -21,10 +21,10 @@
 // Chassis constructor
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
-    {-3, -6, -7},     // Left Chassis Ports (negative port will reverse it!)
-    {9, 14, 19},  // Right Chassis Ports (negative port will reverse it!)
+    {-3, -6, -20},     // Left Chassis Ports (negative port will reverse it!)
+    {21, 14, 19},  // Right Chassis Ports (negative port will reverse it!)
 
-    1,      // IMU Port
+    17,      // IMU Port
     2.75,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
     450);   // Wheel RPM
 
@@ -115,7 +115,9 @@ void autonomous() {
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
 
-  ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
+  skills(); 
+  //blue_awp();
+  // red_awp();
 }
 
 /**
@@ -163,12 +165,21 @@ void autonomous() {
 //   }
 // }
 
+void saketh_nandam(int move_val) {
+  wall_stake_mech_2.move(move_val);
+  wall_stake_mech_1.move(-1*move_val);
+}
+void stop_saketh_nandam() {
+  wall_stake_mech_2.brake();
+  wall_stake_mech_1.brake();
+}
 void opcontrol() {
   // This is preference to what you like to drive on
   pros::motor_brake_mode_e_t driver_preference_brake = MOTOR_BRAKE_COAST;
-  pros::motor_brake_mode_e_t lady_brown_brake = MOTOR_BRAKE_HOLD;
+  pros::motor_brake_mode_e_t lady_brown_brake = MOTOR_BRAKE_BRAKE;
   chassis.drive_brake_set(driver_preference_brake);
- // saketh_nandam.set_brake_mode(lady_brown_brake);
+  wall_stake_mech_1.set_brake_mode(lady_brown_brake);
+  wall_stake_mech_2.set_brake_mode(lady_brown_brake);
   intake.set_brake_mode(driver_preference_brake);
 
   while (true) {
@@ -216,13 +227,13 @@ void opcontrol() {
       henry_wo.set_value(kavinjit_sandhu);
     }
 
-    // if (master.get_digital(DIGITAL_L2)) {
-    //   saketh_nandam.move(127);
-    // } else if (master.get_digital(DIGITAL_R2)) {
-    //   saketh_nandam.move(-127);
-    // } else {
-    //   saketh_nandam.brake();
-    // }
+    if (master.get_digital(DIGITAL_X)) {
+      saketh_nandam(127);
+    } else if (master.get_digital(DIGITAL_Y)) {
+      saketh_nandam(-127);
+    } else {
+      stop_saketh_nandam();
+    }
     // pros::screen::print(pros::TEXT_LARGE, 3, "CTESPN");
     // master.print(0, 0, "Don't be saketh nandam");
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
