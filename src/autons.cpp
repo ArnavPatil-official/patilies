@@ -54,6 +54,9 @@ void lady_brown(int move_val, int power_val) {
 void brown_up(){
   lady_brown(273,100);
 }
+void stake_scorer(){
+  lady_brown(924,100);
+}
 void brown_set_up(){
   motorTare(wall_stake_mech_1,wall_stake_mech_2);
 }
