@@ -38,7 +38,29 @@ void getRings(int power) {
   intake.move(-1*power);
 }
 
+void motorTare(pros::motor_t example) {
+  example.tare_position();
+}
+void motorTare(pros::motor_t example, pros::motor_t example_2) {
+  example.tare_position();
+  example_2.tare_position();
+  example.pos
+}
+void lady_brown(int move_val, int power_val) {
+  wall_stake_mech_2.move_absolute(move_val, power_val);
+  wall_stake_mech_1.move_absoulte(-1*move_val, power_val);
+}
+
+void brown_up(){
+  lady_brown(273,100);
+}
+void brown_set_up(){
+  motorTare(wall_stake_mech_1,wall_stake_mech_2);
+}
+
 void skills() {
+  brown_set_up();
+  brown_up();
   chassis.drive_angle_set(0_deg);
   chassis.pid_drive_set(-7_in,DRIVE_SPEED,false);
   chassis.pid_wait();
@@ -84,6 +106,8 @@ void skills() {
 
 }
 void blue_awp() {
+  brown_set_up();
+  brown_up();
   chassis.pid_drive_set(-13.5_in, DRIVE_SPEED, true);
   chassis.pid_wait();
   chassis.pid_turn_set(30_deg, TURN_SPEED);
@@ -93,7 +117,7 @@ void blue_awp() {
   clamp_digi.set_value(true); 
   chassis.pid_drive_set(-3_in, DRIVE_SPEED/2, true);
   chassis.pid_wait();
-   intake.move(-127/1.25);
+  intake.move(-127/1.25);
   chassis.pid_turn_set(103_deg, TURN_SPEED);
   chassis.pid_wait();
   chassis.pid_drive_set(15_in, DRIVE_SPEED, true); 
