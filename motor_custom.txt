@@ -1,0 +1,52 @@
+class motor_custom {
+    public:
+    private:
+        pros::Motor& wall_stake_mech_1;
+        pros::Motor& wall_stake_mech_2;
+
+    public:
+        motor_custom(pros::Motor& mech1, pros::Motor& mech2) : wall_stake_mech_1(mech1), wall_stake_mech_2(mech2) {}
+
+        void saketh_nandam(int move_val) {
+            wall_stake_mech_2.move(move_val);
+            wall_stake_mech_1.move(-1*move_val);
+        }
+
+        void stop_saketh_nandam() {
+            wall_stake_mech_2.brake();
+            wall_stake_mech_1.brake();
+        }
+
+        static void motorTare(pros::Motor& example) {
+            example.tare_position();
+        }
+
+        static void motorTare(pros::Motor& example, pros::Motor& example_2) {
+            example.tare_position();
+            example_2.tare_position();
+        }
+
+        void lady_brown(int move_val, int power_val) {
+            wall_stake_mech_2.move_absolute(move_val, power_val);
+            wall_stake_mech_1.move_absolute(-1*move_val, power_val);
+        }
+};
+
+/*
+To use this class:
+
+1. Create an instance:
+   motor_custom my_motors(wall_stake_mech_1, wall_stake_mech_2);
+
+2. Call the member functions:
+   my_motors.saketh_nandam(127);
+   my_motors.stop_saketh_nandam();
+   my_motors.lady_brown(500, 100);
+
+3. Call the static functions:
+   motor_custom::motorTare(some_motor);
+   motor_custom::motorTare(motor1, motor2);
+
+Replace wall_stake_mech_1, wall_stake_mech_2, some_motor, motor1, and motor2
+with your actual motor objects.
+*/
