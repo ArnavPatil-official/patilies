@@ -21,7 +21,7 @@
 // Chassis constructor
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
-    {-3, -6, -20},     // Left Chassis Ports (negative port will reverse it!)
+    {-3, -6, -16},     // Left Chassis Ports (negative port will reverse it!)
     {21, 14, 19},  // Right Chassis Ports (negative port will reverse it!)
 
     17,      // IMU Port
@@ -120,7 +120,7 @@ void autonomous() {
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
 
   //skills(); 
-  blue_awp();
+  red_awp();
   // red_awp();
 }
 
