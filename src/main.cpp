@@ -115,7 +115,7 @@ void autonomous() {
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
 
-  skills(); 
+  red_awp(); 
   //blue_awp();
   // red_awp();
 }
