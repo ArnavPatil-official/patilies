@@ -114,8 +114,8 @@ void autonomous() {
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
-
-  red_awp(); 
+ // skills();
+  blue_awp(); 
   //blue_awp();
   // red_awp();
 }
@@ -218,11 +218,11 @@ void opcontrol() {
       //intake_running = false;
       intake.move(0);
     }
-    if (master.get_digital_new_press(DIGITAL_L1)) {
+    if (master.get_digital_new_press(DIGITAL_L2)) {
       parthiv_maddipatla = !parthiv_maddipatla;
       clamp_digi.set_value(parthiv_maddipatla);
     }
-    if (master.get_digital_new_press(DIGITAL_A)) {
+    if (master.get_digital_new_press(DIGITAL_L1)) {
       kavinjit_sandhu = !kavinjit_sandhu;
       henry_wo.set_value(kavinjit_sandhu);
     }

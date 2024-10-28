@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "71999a - skl",
+    "project_name": "BLUE",
     "target": "v5",
     "templates": {
       "EZ-Template": {
@@ -422,7 +422,7 @@
     },
     "upload_options": {
       "description": "by saketh nandam",
-      "slot": 2
+      "slot": 4
     },
     "use_early_access": false
   }
