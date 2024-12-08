@@ -21,7 +21,7 @@
 // Chassis constructor
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
-    {-3, -6, -20},     // Left Chassis Ports (negative port will reverse it!)
+    {-3, -6, -16},     // Left Chassis Ports (negative port will reverse it!)
     {21, 14, 19},  // Right Chassis Ports (negative port will reverse it!)
 
     17,      // IMU Port
@@ -45,14 +45,18 @@ void intake_check(void * param) {
   }
 }
 void initialize() {
+  
   // Print our branding over your terminal :D
   ez::ez_template_print();
 
   pros::delay(500);  // Stop the user from doing anything while legacy ports configure
-
+  pros::motor_brake_mode_e_t lady_brown_brake = MOTOR_BRAKE_BRAKE;
+  wall_stake_mech_1.set_brake_mode(lady_brown_brake);
+  wall_stake_mech_2.set_brake_mode(lady_brown_brake);
+  
   // Configure your chassis controls
-  chassis.opcontrol_curve_buttons_toggle(true);  // Enables modifying the controller curve with buttons on the joysticks
-  chassis.opcontrol_drive_activebrake_set(0);    // Sets the active brake kP. We recommend ~2.  0 will disable.
+  chassis.opcontrol_curve_buttons_toggle(false);  // Enables modifying the controller curve with buttons on the joysticks
+  chassis.opcontrol_drive_activebrake_set(2);    // Sets the active brake kP. We recommend ~2.  0 will disable.
   chassis.opcontrol_curve_default_set(0, 0);     // Defaults for curve. If using tank, only the first parameter is used. (Comment this line out if you have an SD card!)
 
   // Set the drive to your own constants from autons.cpp!
@@ -114,9 +118,9 @@ void autonomous() {
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
- // skills();
-  blue_awp(); 
-  //blue_awp();
+
+  //skills(); 
+  red_awp();
   // red_awp();
 }
 
@@ -176,11 +180,8 @@ void stop_saketh_nandam() {
 void opcontrol() {
   // This is preference to what you like to drive on
   pros::motor_brake_mode_e_t driver_preference_brake = MOTOR_BRAKE_COAST;
-  pros::motor_brake_mode_e_t lady_brown_brake = MOTOR_BRAKE_BRAKE;
-  chassis.drive_brake_set(driver_preference_brake);
-  wall_stake_mech_1.set_brake_mode(lady_brown_brake);
-  wall_stake_mech_2.set_brake_mode(lady_brown_brake);
   intake.set_brake_mode(driver_preference_brake);
+  chassis.drive_brake_set(driver_preference_brake);
 
   while (true) {
     // PID Tuner
