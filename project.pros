@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "BLUE",
+    "project_name": "rotation test ",
     "target": "v5",
     "templates": {
       "EZ-Template": {
@@ -422,7 +422,7 @@
     },
     "upload_options": {
       "description": "by saketh nandam",
-      "slot": 4
+      "slot": 2
     },
     "use_early_access": false
   }
