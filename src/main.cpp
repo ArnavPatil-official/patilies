@@ -33,6 +33,38 @@ ez::Drive chassis(
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
+ void checkMotorsAndReturnTemperature() {
+    std::vector<pros::Motor> motors = {
+        leftFront, leftBack, leftTop, rightFront, rightBack, rightTop, wall_stake_mech_1, intake
+    };
+
+    while (true) {
+        double totalTemp = 0.0;
+        int count = 0;
+
+        for (auto& motor : motors) {
+            double temp = motor.get_temperature();
+            if (temp == PROS_ERR_F) { // PROS_ERR_F is returned when the motor is unplugged
+                master.set_text(0, 0, "Motor " + std::to_string(motor.get_port()) + " unplugged.");
+                pros::delay(250);
+                master.rumble("---");
+            }
+
+            if (count < 6) {
+                totalTemp += temp;
+            }
+            ++count;
+        }
+
+        if (count == 0) master.set_text(0, 0, "No motors found.");
+
+        double averageTempCelsius = totalTemp / count;
+        double averageTempFahrenheit = averageTempCelsius * 9.0 / 5.0 + 32.0;
+        master.set_text(0, 0, "Avg Temp: " + std::to_string(averageTempFahrenheit));
+
+        pros::delay(250);
+    }
+}
  void saketh_nandam(int move_val) {
   wall_stake_mech_2.move(move_val);
   wall_stake_mech_1.move(-1*move_val);
@@ -55,9 +87,9 @@ double target_rotation;
 void set_stake(int input) {
   wall_stake_mech_1.move(input);
 }
-const int numStates = 3;
+const int numStates = 4;
 //make sure these are in centidegrees (1 degree = 100 centidegrees)
-int states[numStates] = {0, 300, 2000};
+int states[numStates] = {0, 3500,8000,14500};
 int currState = 0;
 int target = 0;
 
@@ -68,11 +100,15 @@ void nextState() {
     }
     target = states[currState];
 }
-
+int threshold = 200;
 void liftControl() {
-    double kp = 0.5;
+    double kp = 0.014;
     double error = target - rotation_sensor.get_position();
     double velocity = kp * error;
+    if (abs(error) < threshold) {
+        wall_stake_mech_1.brake();
+        return;
+    }
     wall_stake_mech_1.move(velocity);
 }
 // ez::PID stakePID{0.05, 0, 0, 0, "Stake"};
@@ -88,6 +124,7 @@ void initialize() {
   
   // Print our branding over your terminal :D
   ez::ez_template_print();
+  rotation_sensor.set_position(0);
   wall_stake_mech_1.tare_position();
   pros::Task liftControlTask([]{
         while (true) {
@@ -182,7 +219,7 @@ bool flipperstate = false;
 double setMech = 360;
 double scoreMech = 3000;
 double downMech = 0;
-
+int currenttime;
 bool stakeCount = false;
 void flip(bool example) {
   example = !example;
@@ -228,9 +265,9 @@ void opcontrol() {
       }
     else if (master.get_digital(DIGITAL_R1)) {
       intake.move(127);
+      currState = 0;
       //stakePID.target_set(-5/100);
       //wall_stake_mech_1.move_absolute(-45,100);
-      stakeCounter = 0;
       //intake_running = true;
     }
     else {
@@ -262,27 +299,41 @@ void opcontrol() {
     //     wall_stake_mech_1.move_absolute(-1050,100);
     //     stakeCounter = 0;
     //   }
-    while (true) {
 	   if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
 			nextState();
+		// if (currState == 2) {  // When transitioning to state 1 (2750)
+		// 	intake.move(-60);  // Move intake backwards at half speed
+		// 	pros::delay(200);  // Run for 200ms
+    //   currenttime = pros::millis();
+    //   if (pros::millis() - currenttime > 200) {
+		// 	  intake.move(0);    // Stop intake
+    //   }
+		// }
 		}
+    // failsafe
+      if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
+        wall_stake_mech_1.move(127);
+      }
+      else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) {
+        wall_stake_mech_1.move(-127);
+      }
       // wall_stake_mech_1.move(127);
       // if (fabs(wall_stake_mech_1.get_position()-41) > 2) {
       //   wall_stake_mech_1.brake();
       // }
-    }
     
-    if (master.get_digital_new_press(DIGITAL_UP)) {
-      wall_stake_mech_1.move_absolute(-520,100);
-    }
+    
+    // if (master.get_digital_new_press(DIGITAL_UP)) {
+    //   wall_stake_mech_1.move_absolute(-520,100);
+    // }
     if (master.get_digital_new_press(DIGITAL_L2)) {
       clampstate = !clampstate;
       clamp_digi.set_value(clampstate);
     }
-    // if (master.get_digital_new_press(DIGITAL_L1)) {
-    //   flipperstate = !flipperstate;
-    //   henry_wo.set_value(flipperstate);
-    // }
+    if (master.get_digital_new_press(DIGITAL_A)) {
+      flipperstate = !flipperstate;
+      henry_wo.set_value(flipperstate);
+    }
 
     // if (master.get_digital(DIGITAL_X)) {
     //   saketh_nandam(127);

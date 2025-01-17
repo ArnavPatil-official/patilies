@@ -13,6 +13,7 @@ const int SWING_SPEED = 90;
 ///
 // Constants
 ///
+
 void default_constants() {
   chassis.pid_heading_constants_set(11, 0, 20);
   chassis.pid_drive_constants_set(20, 0, 100);
