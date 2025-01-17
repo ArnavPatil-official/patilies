@@ -111,6 +111,7 @@ void liftControl() {
     }
     wall_stake_mech_1.move(velocity);
 }
+
 // ez::PID stakePID{0.05, 0, 0, 0, "Stake"};
 // void stake_task() {
 //   pros::delay(2000);  // Set EZ-Template calibrate before this function starts running
@@ -132,6 +133,13 @@ void initialize() {
             pros::delay(10);
         }
     });
+  pros::Task liftAutonControlTask([]{
+        while (true) {
+            liftControl_a();
+            pros::delay(10);
+        }
+    });
+
   // rotation_sensor.set_position(0);
   // pros::Task stake_task1(stake_task);
   // stakePID.target_set(0);
