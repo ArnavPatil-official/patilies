@@ -16,13 +16,13 @@ const int SWING_SPEED = 90;
 
 void default_constants() {
   chassis.pid_heading_constants_set(11, 0, 20);
-  chassis.pid_drive_constants_set(20, 0, 100);
-  chassis.pid_turn_constants_set(3, 0.05, 20, 15);
+  chassis.pid_drive_constants_set(14.4, 0, 70); // 20, 100
+  chassis.pid_turn_constants_set(3, 0.05, 15, 15);
   chassis.pid_swing_constants_set(6, 0, 65);
 
-  chassis.pid_turn_exit_condition_set(50_ms, 3_deg, 50_ms, 7_deg, 100_ms, 100_ms);
+  chassis.pid_turn_exit_condition_set(100_ms, 2_deg, 100_ms, 7_deg, 100_ms, 100_ms);
   chassis.pid_swing_exit_condition_set(50_ms, 3_deg, 50_ms, 7_deg, 100_ms, 100_ms);
-  chassis.pid_drive_exit_condition_set(50_ms, 1_in, 50_ms, 3_in, 100_ms, 100_ms);
+  chassis.pid_drive_exit_condition_set(100_ms, 1_in, 75_ms, 3_in, 100_ms, 100_ms);
   chassis.pid_turn_exit_condition_set(50_ms, 3_deg, 50_ms, 7_deg, 100_ms, 100_ms);
   chassis.pid_swing_exit_condition_set(50_ms, 3_deg, 50_ms, 7_deg, 100_ms, 100_ms);
   chassis.pid_drive_exit_condition_set(50_ms, 1_in, 50_ms, 3_in, 100_ms, 100_ms);
@@ -38,39 +38,89 @@ void default_constants() {
 // Drive Example
 ///
 
-void liftWait() {
-    while (abs(target - rotation_sensor.get_position()) >= threshold) {
-        pros::delay(10);
-    }
-}
-const int numStates_a = 4;
-//make sure these are in centidegrees (1 degree = 100 centidegrees)
-int states_a[numStates_a] = {0, 3500,8000,14500};
-int currState_a = 0;
-int target_a = 0;
 
-void nextState_a() {
-    currState_a += 1;
-    if (currState_a == numStates_a) {
-        currState_a = 0;
-    }
-    target_a = states_a[currState_a];
-}
-int threshold_a = 200;
-void liftControl_a() {
-    double kp_a = 0.014;
-    double error_a = target_a - rotation_sensor.get_position();
-    double velocity_a = kp_a * error_a;
-    if (abs(error_a) < threshold_a) {
-        wall_stake_mech_1.brake();
-        return;
-    }
-    wall_stake_mech_1.move(velocity_a);
-}
+// const int numStates_a = 4;
+// //make sure these are in centidegrees (1 degree = 100 centidegrees)
+// int states_a[numStates_a] = {0, 3500,8000,14500};
+// int currState_a = 0;
+// int target_a = 0;
+
+// void nextState_a() {
+//     currState_a += 1;
+//     if (currState_a == numStates_a) {
+//         currState_a = 0;
+//     }
+//     target_a = states_a[currState_a];
+// }
+// int threshold_a = 200;
+// void liftWait() {
+//     while (abs(target_a - rotation_sensor.get_position()) >= threshold_a) {
+//         pros::delay(10);
+//     }
+// }
+// void liftControl_a() {
+//     double kp_a = 0.014;
+//     double error_a = target_a - rotation_sensor.get_position();
+//     double velocity_a = kp_a * error_a;
+//     if (abs(error_a) < threshold_a) {
+//         wall_stake_mech_1.brake();
+//         return;
+//     }
+//     wall_stake_mech_1.move(velocity_a);
+// }
+// void lift(int input) {
+//   target_a = input;
+// }
+
+// pros::Task liftAutonControlTask([]{
+//         while (true) {
+//             liftControl_a();
+//             pros::delay(10);
+//         }
+// });
+int ring_set = 3500;
+int middle_stage = 8000;
+int score = 14500;
 void lift(int input) {
-  target_a = input;
+  target = input;
 }
 void skills() {
+  lift(0);
+  chassis.drive_angle_set(0_deg);
+  chassis.pid_drive_set(-6_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+  intake.move(-100);
+  pros::delay(400);
+  chassis.pid_drive_set(13.5_in, DRIVE_SPEED, true); 
+  chassis.pid_wait();
+  chassis.pid_turn_set(90_deg, TURN_SPEED);
+  chassis.pid_wait();
+  chassis.pid_drive_set(-18_in, 83, true);
+  chassis.pid_wait();
+  chassis.pid_wait_until(-8_in);
+  chassis.pid_speed_max_set(45);
+  clamp_digi.set_value(true);
+  chassis.pid_drive_set(-3_in, 83, true);
+  chassis.pid_wait();
+  pros::delay(500);
+  chassis.pid_turn_set(0_deg, 45);
+  chassis.pid_wait();
+  intake.move(-90);
+  chassis.pid_drive_set(27_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+  pros::delay(550);
+  chassis.pid_turn_set(-90_deg, TURN_SPEED);
+  chassis.pid_wait();
+  chassis.pid_drive_set(25_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+  chassis.pid_turn_set(-21_deg, TURN_SPEED);
+  chassis.pid_wait();
+  chassis.pid_drive_set(25_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
+  chassis.pid_turn_set(-189_deg, TURN_SPEED);
+  chassis.pid_wait();
+  chassis.pid_drive_set(43_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
   //ladybrown up
   // saketh_anandam(127);
   // chassis.drive_angle_set(0_deg);
@@ -152,6 +202,8 @@ void skills() {
 
 }
 void blue_awp() {
+  chassis.pid_drive_set(4_in, DRIVE_SPEED, true);
+  chassis.pid_wait();
   // chassis.pid_drive_set(-13.5_in, DRIVE_SPEED, true);
   // chassis.pid_wait();
   // chassis.pid_turn_set(30_deg, TURN_SPEED);

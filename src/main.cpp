@@ -22,7 +22,7 @@
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
     {-15, -10, -6},     // Left Chassis Ports (negative port will reverse it!)
-    {9, 8, 3},  // Right Chassis Ports (negative port will reverse it!)
+    {18, 8, 3},  // Right Chassis Ports (negative port will reverse it!)
     21,      // IMU Port
     2.75,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
     450);   // Wheel RPM
@@ -33,38 +33,38 @@ ez::Drive chassis(
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
- void checkMotorsAndReturnTemperature() {
-    std::vector<pros::Motor> motors = {
-        leftFront, leftBack, leftTop, rightFront, rightBack, rightTop, wall_stake_mech_1, intake
-    };
+//  void checkMotorsAndReturnTemperature() {
+//     std::vector<pros::Motor> motors = {
+//         leftFront, leftBack, leftTop, rightFront, rightBack, rightTop, wall_stake_mech_1, intake
+//     };
 
-    while (true) {
-        double totalTemp = 0.0;
-        int count = 0;
+//     while (true) {
+//         double totalTemp = 0.0;
+//         int count = 0;
 
-        for (auto& motor : motors) {
-            double temp = motor.get_temperature();
-            if (temp == PROS_ERR_F) { // PROS_ERR_F is returned when the motor is unplugged
-                master.set_text(0, 0, "Motor " + std::to_string(motor.get_port()) + " unplugged.");
-                pros::delay(250);
-                master.rumble("---");
-            }
+//         for (auto& motor : motors) {
+//             double temp = motor.get_temperature();
+//             if (temp == PROS_ERR_F) { // PROS_ERR_F is returned when the motor is unplugged
+//                 master.set_text(0, 0, "Motor " + std::to_string(motor.get_port()) + " unplugged.");
+//                 pros::delay(250);
+//                 master.rumble("---");
+//             }
 
-            if (count < 6) {
-                totalTemp += temp;
-            }
-            ++count;
-        }
+//             if (count < 6) {
+//                 totalTemp += temp;
+//             }
+//             ++count;
+//         }
 
-        if (count == 0) master.set_text(0, 0, "No motors found.");
+//         if (count == 0) master.set_text(0, 0, "No motors found.");
 
-        double averageTempCelsius = totalTemp / count;
-        double averageTempFahrenheit = averageTempCelsius * 9.0 / 5.0 + 32.0;
-        master.set_text(0, 0, "Avg Temp: " + std::to_string(averageTempFahrenheit));
+//         double averageTempCelsius = totalTemp / count;
+//         double averageTempFahrenheit = averageTempCelsius * 9.0 / 5.0 + 32.0;
+//         master.set_text(0, 0, "Avg Temp: " + std::to_string(averageTempFahrenheit));
 
-        pros::delay(250);
-    }
-}
+//         pros::delay(250);
+//     }
+// }
  void saketh_nandam(int move_val) {
   wall_stake_mech_2.move(move_val);
   wall_stake_mech_1.move(-1*move_val);
@@ -87,30 +87,30 @@ double target_rotation;
 void set_stake(int input) {
   wall_stake_mech_1.move(input);
 }
-const int numStates = 4;
-//make sure these are in centidegrees (1 degree = 100 centidegrees)
-int states[numStates] = {0, 3500,8000,14500};
-int currState = 0;
-int target = 0;
+// inline const int numStates = 4;
+// //make sure these are in centidegrees (1 degree = 100 centidegrees)
+// inline int states[numStates] = {0, 3500,8000,14500};
+// inline int currState = 0;
+// inline int target = 0;
 
-void nextState() {
-    currState += 1;
-    if (currState == numStates) {
-        currState = 0;
-    }
-    target = states[currState];
-}
-int threshold = 200;
-void liftControl() {
-    double kp = 0.014;
-    double error = target - rotation_sensor.get_position();
-    double velocity = kp * error;
-    if (abs(error) < threshold) {
-        wall_stake_mech_1.brake();
-        return;
-    }
-    wall_stake_mech_1.move(velocity);
-}
+// inline void nextState() {
+//     currState += 1;
+//     if (currState == numStates) {
+//         currState = 0;
+//     }
+//     target = states[currState];
+// }
+// inline int threshold = 200;
+// inline void liftControl() {
+//     double kp = 0.014;
+//     double error = target - rotation_sensor.get_position();
+//     double velocity = kp * error;
+//     if (abs(error) < threshold) {
+//         wall_stake_mech_1.brake();
+//         return;
+//     }
+//     wall_stake_mech_1.move(velocity);
+// }
 
 // ez::PID stakePID{0.05, 0, 0, 0, "Stake"};
 // void stake_task() {
@@ -133,12 +133,7 @@ void initialize() {
             pros::delay(10);
         }
     });
-  pros::Task liftAutonControlTask([]{
-        while (true) {
-            liftControl_a();
-            pros::delay(10);
-        }
-    });
+  
 
   // rotation_sensor.set_position(0);
   // pros::Task stake_task1(stake_task);
@@ -214,6 +209,7 @@ void autonomous() {
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
 
   skills(); 
+ // blue_awp();
   //red_awp();
   // red_awp();
 }
