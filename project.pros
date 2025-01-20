@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "skills",
+    "project_name": "halfred",
     "target": "v5",
     "templates": {
       "EZ-Template": {
@@ -422,7 +422,7 @@
     },
     "upload_options": {
       "description": "by saketh nandam",
-      "slot": 1
+      "slot": 3
     },
     "use_early_access": false
   }

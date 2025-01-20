@@ -208,7 +208,9 @@ void autonomous() {
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
 
-  skills(); 
+  //skills(); 
+  drive_example();
+  //turn_example();
  // blue_awp();
   //red_awp();
   // red_awp();
@@ -242,22 +244,22 @@ void opcontrol() {
   while (true) {
     // PID Tuner
     // After you find values that you're happy with, you'll have to set them in auton.cpp
-    if (!pros::competition::is_connected()) {
-      // Enable / Disable PID Tuner
-      //  When enabled:
-      //  * use A and Y to increment / decrement the constants
-      //  * use the arrow keys to navigate the constants
-      if (master.get_digital_new_press(DIGITAL_X))
-        chassis.pid_tuner_toggle();
+    // if (!pros::competition::is_connected()) {
+    //   // Enable / Disable PID Tuner
+    //   //  When enabled:
+    //   //  * use A and Y to increment / decrement the constants
+    //   //  * use the arrow keys to navigate the constants
+    //   if (master.get_digital_new_press(DIGITAL_X))
+    //     chassis.pid_tuner_toggle();
 
-      // Trigger the selected autonomous routine
-      if (master.get_digital(DIGITAL_B) && master.get_digital(DIGITAL_DOWN)) {
-        autonomous();
-        chassis.drive_brake_set(driver_preference_brake);
-      }
+    //   // Trigger the selected autonomous routine
+    //   if (master.get_digital(DIGITAL_B) && master.get_digital(DIGITAL_DOWN)) {
+    //     autonomous();
+    //     chassis.drive_brake_set(driver_preference_brake);
+    //   }
 
-      chassis.pid_tuner_iterate();  // Allow PID Tuner to iterate
-    }
+    //   chassis.pid_tuner_iterate();  // Allow PID Tuner to iterate
+    // }
 
     chassis.opcontrol_tank();  // Tank control
   
