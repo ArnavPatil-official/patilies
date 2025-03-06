@@ -7,20 +7,20 @@ using namespace pros;
 
 // Your motors, sensors, etc. should go here.  Below are examples
 
-inline pros::Motor intake(5);
+inline pros::Motor intake(11);
 inline pros::Motor wall_stake_mech_1(-7); // 
-inline pros::Motor wall_stake_mech_2(1); // reverse
+inline pros::Motor wall_stake_mech_2(8); 
 //inline pros::Motor_Group saketh_nandam ({wall_stake_mech_1, wall_stake_mech_2});
 inline pros::adi::DigitalOut clamp_digi('A');
 inline pros::adi::DigitalOut henry_wo('B');
-inline pros::Rotation rotation_sensor(4);
+inline pros::Rotation rotation_sensor(15);
 // inline pros::adi::DigitalIn limit_switch('A');
-inline pros::Motor leftFront(-15);
-inline pros::Motor leftTop(-10);
-inline pros::Motor leftBack(-6);
-//inline pros::Motor rightFront(20);
-inline pros::Motor rightTop(8);
-inline pros::Motor rightBack(3);
+inline pros::Motor leftFront(18);
+inline pros::Motor leftTop(-20);
+inline pros::Motor leftBack(-21);
+inline pros::Motor rightFront(-17);
+inline pros::Motor rightTop(12);
+inline pros::Motor rightBack(13);
 inline const int numStates = 4;
 //make sure these are in centidegrees (1 degree = 100 centidegrees)
 inline int states[numStates] = {0, 3500,8000,14500};
