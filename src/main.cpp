@@ -21,9 +21,9 @@
 // Chassis constructor
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
-    {-15, -10, -6},     // Left Chassis Ports (negative port will reverse it!)
-    {18, 8, 3},  // Right Chassis Ports (negative port will reverse it!)
-    21,      // IMU Port
+    {6, -20, -21}, // Left Chassis Ports (negative port will reverse it!)
+    {-9, 7, 8},  // Right Chassis Ports (negative port will reverse it!)
+    10,      // IMU Port
     2.75,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
     450);   // Wheel RPM
 
@@ -65,28 +65,25 @@ ez::Drive chassis(
 //         pros::delay(250);
 //     }
 // }
- void saketh_nandam(int move_val) {
-  wall_stake_mech_2.move(move_val);
-  wall_stake_mech_1.move(-1*move_val);
-}
-void stop_saketh_nandam() {
-  wall_stake_mech_2.brake();
-  wall_stake_mech_1.brake();
-}
-bool intake_running = false;
-const double intake_torque_threshold = 9.8;
-void intake_check(void * param) {
-  while (intake_running) {
-      if (intake.get_torque() > intake_torque_threshold) {
-        intake.brake();
-    }
-    pros::delay(10);
-  }
-}
+//  void saketh_nandam(int move_val) {
+//   wall_stake_mech_2.move(move_val);
+//   wall_stake_mech_1.move(-1*move_val);
+// }
+// void stop_saketh_nandam() {
+//   wall_stake_mech_2.brake();
+//   wall_stake_mech_1.brake();
+// }
+// bool intake_running = false;
+// const double intake_torque_threshold = 9.8;
+// void intake_check(void * param) {
+//   while (intake_running) {
+//       if (intake.get_torque() > intake_torque_threshold) {
+//         intake.brake();
+//     }
+//     pros::delay(10);
+//   }
+// }
 double target_rotation;
-void set_stake(int input) {
-  wall_stake_mech_1.move(input);
-}
 // inline const int numStates = 4;
 // //make sure these are in centidegrees (1 degree = 100 centidegrees)
 // inline int states[numStates] = {0, 3500,8000,14500};
@@ -125,24 +122,26 @@ void initialize() {
   
   // Print our branding over your terminal :D
   ez::ez_template_print();
-  rotation_sensor.set_position(0);
-  wall_stake_mech_1.tare_position();
+  //rotation_sensor.reset_position();
+  rotation_sensor.set_position(states[LOAD]-200);
+  target = rotation_sensor.get_position();
+  wall_stake_mech_11.tare_position();
+  wall_stake_mech_22.tare_position();
+  
+
+  // pros::Task stake_task1(stake_task);
+  // stakePID.target_set(0);
+  // stakePID.exit_condition_set(80, 50, 300, 150, 500, 500);
+  pros::delay(500);  // Stop the user from doing anything while legacy ports configure
   pros::Task liftControlTask([]{
         while (true) {
             liftControl();
             pros::delay(10);
         }
     });
-  
-
-  // rotation_sensor.set_position(0);
-  // pros::Task stake_task1(stake_task);
-  // stakePID.target_set(0);
-  // stakePID.exit_condition_set(80, 50, 300, 150, 500, 500);
-  pros::delay(500);  // Stop the user from doing anything while legacy ports configure
   pros::motor_brake_mode_e_t lady_brown_brake = MOTOR_BRAKE_BRAKE;
-  wall_stake_mech_1.set_brake_mode(lady_brown_brake);
-  wall_stake_mech_2.set_brake_mode(lady_brown_brake);
+  wall_stake_mech_11.set_brake_mode(lady_brown_brake);
+  wall_stake_mech_22.set_brake_mode(lady_brown_brake);
   // Configure your chassis controls
   chassis.opcontrol_curve_buttons_toggle(false);  // Enables modifying the controller curve with buttons on the joysticks
   chassis.opcontrol_drive_activebrake_set(2);    // Sets the active brake kP. We recommend ~2.  0 will disable.
@@ -157,11 +156,11 @@ void initialize() {
   // chassis.opcontrol_curve_buttons_right_set(pros::E_CONTROLLER_DIGITAL_Y, pros::E_CONTROLLER_DIGITAL_A);
 
   // Autonomous Selector using LLEMU
-  ez::as::auton_selector.autons_add({
-      Auton("skills.", skills),
-      Auton("blue awp.", blue_awp),
-      Auton("red awp. ", red_awp),
-  });
+  // ez::as::auton_selector.autons_add({
+  //     Auton("skills.", skills),
+  //     Auton("blue awp.", blue_awp),
+  //     Auton("red awp. ", red_awp),
+  // });
 
   // Initialize chassis and auton selector
   chassis.initialize();
@@ -208,8 +207,8 @@ void autonomous() {
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
 
-  //skills(); 
-  drive_example();
+  skills(); 
+  //drive_example();
   //turn_example();
  // blue_awp();
   //red_awp();
@@ -233,15 +232,17 @@ void flip(bool example) {
 int stakeCounter = 0;
 
 void opcontrol() {
-  
   // This is preference to what you like to drive on
   pros::motor_brake_mode_e_t driver_preference_brake = MOTOR_BRAKE_COAST;
   intake.set_brake_mode(driver_preference_brake);
   chassis.drive_brake_set(driver_preference_brake);
- // wall_stake_mech_1.move_absolute(55,100);
-  pros::delay(550);
+  // Removing the automatic movement at start
+  //wall_stake_mech_1.move_absolute(55,100);
+  //pros::delay(550);
   //rotationSet = true;
+  setState(ALLIANCE_SCORE);
   while (true) {
+    master.print(0, 0, "Rot: %d", rotation_sensor.get_position());
     // PID Tuner
     // After you find values that you're happy with, you'll have to set them in auton.cpp
     // if (!pros::competition::is_connected()) {
@@ -267,11 +268,13 @@ void opcontrol() {
 
     if (master.get_digital(DIGITAL_R2)) {
         intake.move(-127);
+        
       //  intake_running = true;
       }
     else if (master.get_digital(DIGITAL_R1)) {
       intake.move(127);
-      currState = 0;
+      setState(DEFAULT);
+      //setState(0);
       //stakePID.target_set(-5/100);
       //wall_stake_mech_1.move_absolute(-45,100);
       //intake_running = true;
@@ -280,13 +283,41 @@ void opcontrol() {
       //intake_running = false;
       intake.move(0);
     }
-      /*
-    press and release for clamp l2
-    l1 lady brown up w rotation sensor (code later)
-    press it once to move lady brown to position and
-     then press it agian to make go forward (score)
-     outtake to lady brown down  - use rotaton sensr
-    */
+      
+   if (master.get_digital_new_press(DIGITAL_L1)) {
+     setState(LOAD);
+   }
+   else if (master.get_digital_new_press(DIGITAL_L2)) {
+    //nextState(); enum Pos {DEFAULT=0,LOAD=1,ALIGN=2,WALL_SCORE=3,ALLIANCE_SCORE=4,DOWN=5};
+     if (currState == 0 || currState == 1) {
+      //  wall_stake_mech_1.move_absolute(800, 100); // aligning position
+      //  wall_stake_mech_2.move_absolute(800, 100);
+      //  currState++;
+      setState(ALIGN);
+      currState++;
+     }
+     else if (currState == 2) {
+      //  wall_stake_mech_1.move_absolute(1600, 100); // scoring position
+      //  wall_stake_mech_2.move_absolute(1600, 100);
+      //  currState++;
+     setState(WALL_SCORE);
+     currState++;
+     }
+     else if (currState == 3) {
+      //  wall_stake_mech_1.move_absolute(1850, 100); // alliance stake position
+      //  wall_stake_mech_2.move_absolute(1850, 100);
+      //  currState++;
+      setState(ALLIANCE_SCORE);
+      currState++;
+     }
+     else {
+      //  wall_stake_mech_1.move_absolute(1975, 100); // all the way down
+      //  wall_stake_mech_2.move_absolute(1975, 100);
+      //  currState = 0;
+      setState(DOWN);
+      currState = 0;
+     } // 
+   }
     // 41 is set
     // 260 is score
     // if (master.get_digital_new_press(DIGITAL_L1)) {
@@ -305,25 +336,24 @@ void opcontrol() {
     //     wall_stake_mech_1.move_absolute(-1050,100);
     //     stakeCounter = 0;
     //   }
-	   if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
-			nextState();
-		// if (currState == 2) {  // When transitioning to state 1 (2750)
-		// 	intake.move(-60);  // Move intake backwards at half speed
-		// 	pros::delay(200);  // Run for 200ms
-    //   currenttime = pros::millis();
-    //   if (pros::millis() - currenttime > 200) {
-		// 	  intake.move(0);    // Stop intake
-    //   }
-		// }
-		}
-    // failsafe
-      if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-        wall_stake_mech_1.move(127);
+	    // if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {nextState();}
+      // if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)) {wall_stake_mech_1.move(127);}
+      // else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) {wall_stake_mech_1.move(-127);}
+     
+      if (master.get_digital_new_press(DIGITAL_Y)) {
+      clampstate = !clampstate;
+      clamp_digi.set_value(clampstate);
       }
-      else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) {
-        wall_stake_mech_1.move(-127);
+     if (master.get_digital_new_press(DIGITAL_A)) {
+        flipperstate = !flipperstate;
+        henry_wo.set_value(flipperstate);
       }
-      // wall_stake_mech_1.move(127);
+
+   
+    pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
+  }
+}  
+ // wall_stake_mech_1.move(127);
       // if (fabs(wall_stake_mech_1.get_position()-41) > 2) {
       //   wall_stake_mech_1.brake();
       // }
@@ -332,16 +362,7 @@ void opcontrol() {
     // if (master.get_digital_new_press(DIGITAL_UP)) {
     //   wall_stake_mech_1.move_absolute(-520,100);
     // }
-    if (master.get_digital_new_press(DIGITAL_L2)) {
-      clampstate = !clampstate;
-      clamp_digi.set_value(clampstate);
-    }
-    if (master.get_digital_new_press(DIGITAL_A)) {
-      flipperstate = !flipperstate;
-      henry_wo.set_value(flipperstate);
-    }
-
-    // if (master.get_digital(DIGITAL_X)) {
+ // if (master.get_digital(DIGITAL_X)) {
     //   saketh_nandam(127);
     // } else if (master.get_digital(DIGITAL_Y)) {
     //   saketh_nandam(-127);
@@ -350,10 +371,6 @@ void opcontrol() {
     // }
     // pros::screen::print(pros::TEXT_LARGE, 3, "CTESPN");
     // master.print(0, 0, "Don't be saketh nandam");
-    pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
-  }
-}  
-
 // chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
     // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
     // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
@@ -400,3 +417,13 @@ void opcontrol() {
 //     pros::delay(10);
 //   }
 // }
+	// if (currState == 2) {  // When transitioning to state 1 (2750)
+		// 	intake.move(-60);  // Move intake backwards at half speed
+		// 	pros::delay(200);  // Run for 200ms
+    //   currenttime = pros::millis();
+    //   if (pros::millis() - currenttime > 200) {
+		// 	  intake.move(0);    // Stop intake
+    //   }
+		// }
+
+    // failsafe

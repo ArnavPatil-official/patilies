@@ -7,29 +7,36 @@ using namespace pros;
 
 // Your motors, sensors, etc. should go here.  Below are examples
 
-inline pros::Motor intake(11);
-inline pros::Motor wall_stake_mech_1(-7); // 
-inline pros::Motor wall_stake_mech_2(8); 
+inline pros::Motor intake(14);
+inline pros::Motor wall_stake_mech_11(-18); // 
+inline pros::Motor wall_stake_mech_22(19); 
 //inline pros::Motor_Group saketh_nandam ({wall_stake_mech_1, wall_stake_mech_2});
 inline pros::adi::DigitalOut clamp_digi('A');
 inline pros::adi::DigitalOut henry_wo('B');
-inline pros::Rotation rotation_sensor(15);
+inline pros::Rotation rotation_sensor(12);
 // inline pros::adi::DigitalIn limit_switch('A');
-inline pros::Motor leftFront(18);
-inline pros::Motor leftTop(-20);
-inline pros::Motor leftBack(-21);
-inline pros::Motor rightFront(-17);
-inline pros::Motor rightTop(12);
-inline pros::Motor rightBack(13);
-inline const int numStates = 4;
+// inline pros::Motor leftFront(18);
+// inline pros::Motor leftTop(-20);
+// inline pros::Motor leftBack(-21);
+// inline pros::Motor rightFront(-17);
+// inline pros::Motor rightTop(12);
+// inline pros::Motor rightBack(13);
+inline const int numStates = 6;
 //make sure these are in centidegrees (1 degree = 100 centidegrees)
-inline int states[numStates] = {0, 3500,8000,14500};
-inline int currState = 0;
-inline int target = 0;
+inline int states[numStates] = {0, 3500, 8000, 17750, 18500, 24500};
+inline int currState;
+inline int target;
 
 inline void nextState() {
     currState += 1;
     if (currState == numStates) {
+        currState = 0;
+    }
+    target = states[currState];
+}
+inline void setState(int set) {
+    currState = set;
+    if (currState >= numStates) {
         currState = 0;
     }
     target = states[currState];
@@ -40,8 +47,10 @@ inline void liftControl() {
     double error = target - rotation_sensor.get_position();
     double velocity = kp * error;
     if (abs(error) < threshold) {
-        wall_stake_mech_1.brake();
+        wall_stake_mech_11.brake();
+        wall_stake_mech_22.brake();
         return;
     }
-    wall_stake_mech_1.move(velocity);
+    wall_stake_mech_11.move(velocity);
+    wall_stake_mech_22.move(velocity);
 }
