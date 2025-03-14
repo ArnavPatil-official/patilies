@@ -26,6 +26,15 @@ inline const int numStates = 6;
 inline int states[numStates] = {0, 3500, 8000, 17750, 18500, 24500};
 inline int currState;
 inline int target;
+inline pros::Optical optical_sensor(1);
+// Tracking wheel encoder
+//inline pros::Rotation track(5);  // Adjust port number as needed
+
+// Create tracking wheel and odom objects using EZ-Template
+inline ez::tracking_wheel left_tracking(-5, 2.75, 2.5); // 2.75" wheel, -1 reverses direction if needed
+//inline ez::Odom odom(&left_tracking); // Initialize odom with tracking wheel
+
+
 
 inline void nextState() {
     currState += 1;

@@ -127,7 +127,8 @@ void initialize() {
   target = rotation_sensor.get_position();
   wall_stake_mech_11.tare_position();
   wall_stake_mech_22.tare_position();
-  
+  chassis.odom_tracker_left_set(&left_tracking);
+
 
   // pros::Task stake_task1(stake_task);
   // stakePID.target_set(0);
@@ -245,22 +246,22 @@ void opcontrol() {
     master.print(0, 0, "Rot: %d", rotation_sensor.get_position());
     // PID Tuner
     // After you find values that you're happy with, you'll have to set them in auton.cpp
-    // if (!pros::competition::is_connected()) {
-    //   // Enable / Disable PID Tuner
-    //   //  When enabled:
-    //   //  * use A and Y to increment / decrement the constants
-    //   //  * use the arrow keys to navigate the constants
-    //   if (master.get_digital_new_press(DIGITAL_X))
-    //     chassis.pid_tuner_toggle();
+    if (!pros::competition::is_connected()) {
+      // Enable / Disable PID Tuner
+      //  When enabled:
+      //  * use A and Y to increment / decrement the constants
+      //  * use the arrow keys to navigate the constants
+      if (master.get_digital_new_press(DIGITAL_X))
+        chassis.pid_tuner_toggle();
 
-    //   // Trigger the selected autonomous routine
-    //   if (master.get_digital(DIGITAL_B) && master.get_digital(DIGITAL_DOWN)) {
-    //     autonomous();
-    //     chassis.drive_brake_set(driver_preference_brake);
-    //   }
+      // Trigger the selected autonomous routine
+      if (master.get_digital(DIGITAL_B) && master.get_digital(DIGITAL_DOWN)) {
+        autonomous();
+        chassis.drive_brake_set(driver_preference_brake);
+      }
 
-    //   chassis.pid_tuner_iterate();  // Allow PID Tuner to iterate
-    // }
+      chassis.pid_tuner_iterate();  // Allow PID Tuner to iterate
+    }
 
     chassis.opcontrol_tank();  // Tank control
   
